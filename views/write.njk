@@ -1,0 +1,24 @@
+{% extends './layouts/layout.njk' %}
+
+{% block content %}
+<div class="p-5 mb-5 bg-light rounded-3">
+	<h3 class="mb-5 display-3">What to do</h3>
+	<form action="/add" method="POST">
+		<div class="mb-5">
+			<label for="exampleFormControlInput1" class="form-label">Title</label>
+			<input type="text" class="form-control" placeholder="Title" name="title">
+		</div>
+		<div class="mb-5">
+			<label for="exampleFormControlInput1" class="form-label">Due date</label>
+			<input type="datetime-local" class="form-control" name="date">
+		</div>
+		<div class="mb-5">
+			<label for="exampleFormControlTextarea1" class="form-label">Contents</label>
+			<textarea class="form-control" rows="3" placeholder="Contents" name="contents"></textarea>
+		</div>
+		<button type="submit" class="btn btn-outline-secondary">Save</button>
+		</div>
+	</form>
+</div>
+{% endblock %}
+

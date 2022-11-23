@@ -1,0 +1,29 @@
+{% extends './layouts/layout.njk' %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3 offset-md-3 col-md-6">
+  <h1 class="display-5 mb-3">List</h1>
+  {% for i in post %}
+  <div class="list-group w-auto">
+    <label class="list-group-item d-flex gap-3">
+      {# <input class="form-check-input flex-shrink-0" type="checkbox" value="" checked="" style="font-size: 1.375em;"> #}
+      <span class="pt-1 form-checked-content">
+        <small>
+          {{i._id}})
+        </small>
+        <strong>{{i.title}}</strong>
+        <small class="d-block text-muted">
+          {{i.date}}
+        </small>
+        <small>
+          {{i.contents}}
+        </small>
+      </span>
+      <form method="POST" action="/list/{{i._id}}?_method=DELETE">
+        <button type="submit" class="btn btn-light btn-sm">삭제</button>
+      </form>
+    </label>
+  </div>
+  {% endfor %}
+</div> 
+{% endblock %}
