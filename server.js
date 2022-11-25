@@ -2,14 +2,15 @@ require('dotenv').config();
 const { PORT, MONGO_URI, COOKIE_SECRET } = process.env;
 const methodOverride = require('method-override');
 const express = require('express');
-const { MongoClient } = require("mongodb");
+const { MongoClient, AggregationCursor } = require("mongodb");
 const client = new MongoClient(MONGO_URI);
 client.connect(console.log('connecting on MongoDB'));
 const db = client.db('todoapp');
 const nunjucks = require('nunjucks');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
+const LocalStrategy = require('passport-local');
 const session = require('express-session');
+const bcrypt = require('bcrypt')
 
 const app = express();
 app.set('view engine', 'njk')
@@ -22,7 +23,7 @@ app.use('/public', express.static('public'))
 app.use(express.urlencoded({extended: true}));
 app.use(methodOverride('_method'));
 app.use(session({
-  secret:COOKIE_SECRET,
+  secret: COOKIE_SECRET,
   resave: true,
   saveUninitialized: false,
 }));
@@ -32,37 +33,130 @@ app.use(passport.session());
 
 
 app.get('/', (req,res) => {
-  res.render('index.njk', {
-    title: '오늘의 할 일'
-  })
+  if (req.user == undefined) {
+    res.render('index.njk', {
+      title: '오늘의 할 일',
+      user: undefined
+    })
+  }else{
+    console.log(`${req.user.name}님 접속을 환영합니다.`);
+    res.render('index.njk', {
+      title: '오늘의 할 일',
+      user: req.user
+    })
+  }
 });
 
-app.get('/login', (req, res) => {
-  res.render('login.njk', {
-    title: '로그인'
+passport.use(new LocalStrategy({
+  usernameField: 'email',
+  passwordField: 'pw',
+  session: true,
+  passReqToCallback: false,
+}, async (email, pw, done) => {
+  try {
+  const user = await db.collection('user').findOne({email: email});
+  if (!user) { return done(null, false, { message: 'Incorrect username or password.' }, console.log('Incorrect email.')) }
+  const hash = user.pw;
+  const result = await bcrypt.compare(pw, hash)
+  if(!result) {
+    return done(null, false, { message: 'Incorrect username or password.' }, console.log('Incorrect password.'));
+  }  
+  return done(null, user)
+  } catch {
+    if (err) { return done(err); }
+  }
+  }));
+
+passport.serializeUser((user, done) => {
+  done(null, user.email)
+})
+
+// 로그인한 유저의 개인정보를 DB에서 찾는 역할
+passport.deserializeUser(async (email, done) => {
+  const user = await db.collection('user').findOne({email: email})
+  try {
+    done(null, user)
+  } catch (err) {
+    console.error(err);
+  }
+})
+
+function isLoggedIn(req, res, next) {
+  if (req.user) {
+    next()
+  } else {
+    res.send('로그인이 필요합니다.')
+  }
+}
+
+function isNotLoggedIn(req, res, next) {
+  if (!req.user) {
+    next()
+  } else {
+    res.send('로그인 상태로는 접근할 수 없습니다.')
+  }
+}
+
+app.get('/join', isNotLoggedIn, (req, res) => {
+  res.render('join.njk', {
+    title: '회원가입',
   })
 })
 
-app.post('/login', passport.authenticate('local', {
-  failureRedirect: '/login'
-}), async (req, res)=> {
-  const result = await db.collection('user').findOne({email: req.body.email, pw: req.body.pw}, console.log('확인 완료'));
-  console.log(result)
-  res.redirect('/')
-})
+app.post('/join', isNotLoggedIn, async (req, res) => {
+  const { name, email, pw } = req.body
+  try{
+    const exUser = await db.collection('user').findOne({email: email});
+    if(exUser) { 
+      res.send('이미 존재하는 계정입니다.') 
+    } else {
+      const hash = await bcrypt.hash(pw, 12) 
+      db.collection('user').insertOne({
+        name, 
+        email, 
+        pw: hash
+      });
+    res.redirect('/')
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+app.get('/login', isNotLoggedIn,(req, res, info) => {
+  res.render('login.njk', {
+    title: '로그인',
+    user: req.user
+  });
+});
+
+app.post('/login', passport.authenticate('local', {failureRedirect: '/login'}), (req, res) => {
+  res.redirect('/');
+});
 
 app.get('/about', (req, res) => {
   res.render('about.njk', {
     title: "오늘의 할 일 이란?",
+    user: req.user
   })
 })
 
-app.get('/list', async (err, res) => {
+app.get('/logout', (req, res) => {
+  req.logout((err) => {
+    req.session.destroy(() => {
+      res.clearCookie('connect.sid');
+      res.redirect('/');
+    });
+  });
+});
+
+app.get('/list', isLoggedIn, async (req, res) => {
   try {
     const post = await db.collection('post').find().toArray();
     res.render('list.njk', {
       title: 'List',
-      post: post
+      post: post,
+      user: req.user
     }) 
   } catch (err) {
     console.error(err)
@@ -72,7 +166,7 @@ app.get('/list', async (err, res) => {
 app.put('/list/:id', async (req, res) => {
   try {
     const postId = parseInt(req.params.id)
-    const result = await db.collection('post').updateOne({_id: postId}, {$set: {_id: postId, title: req.body.title, date: req.body.date, contents: req.body.contents}}, console.log('수정 완료'))
+    db.collection('post').updateOne({_id: postId}, {$set: {_id: postId, title: req.body.title, date: req.body.date, contents: req.body.contents}}, console.log('수정 완료'))
     res.redirect('/list')
   } catch(err) {
     console.error(err)
@@ -90,8 +184,11 @@ app.delete('/list/:id', async (req, res) => {
   }
 });
 
-app.get('/write', (req,res) => {
-  res.render('write.njk', {title: 'Write'});
+app.get('/write', isLoggedIn, (req,res) => {
+  res.render('write.njk', {
+    title: 'Write',
+    user: req.user
+  });
 });
 
 app.post('/write', async (req, res) => {
@@ -102,8 +199,16 @@ app.post('/write', async (req, res) => {
     res.redirect('/');
 })
 
+app.get('/mypage', isLoggedIn ,(req, res) => {
+  res.render('mypage.njk', {
+    title: '나의 정보',
+    userName: req.user.name,
+    user: req.user
+  })
+})
+
 app.listen(PORT, () => {
-  console.log('listening on 8080')
+  console.log(`listening on ${PORT}`)
 });
 
 module.exports = app;

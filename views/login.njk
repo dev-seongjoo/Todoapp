@@ -7,27 +7,47 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
   </head>
   <body class="text-center">
+    <div class="container">
     <main class="form-signin w-100 m-auto">
-      <form action="/login" method="POST">
-        <h1 class="h3 mb-3 fw-normal">로그인 하기</h1>
-        <div class="form-floating">
-          <input type="email" class="form-control" id="floatingInput" placeholder="이메일" name="email">
+      <form action="/login" method="POST" onkeyup="activateBtn()">
+        <h1 class="h1 my-5 fw-normal">로그인</h1>
+        <div class="mt-1 form-floating">
+          <input type="email" class="form-control" id="email" placeholder="이메일" name="email" oninput="validateEmail()">
           <label for="floatingInput">이메일</label>
         </div>
-        <div class="form-floating">
-          <input type="password" class="form-control" id="floatingPassword" placeholder="비밀번호" name="pw">
+        <div class="mt-1 form-floating">
+          <input type="password" class="form-control" id="pw" placeholder="비밀번호" name="pw">
           <label for="floatingPassword">비밀번호</label>
         </div>
-
-        <div class="checkbox mb-3">
-          <label>
-            <input type="checkbox" value="remember-me"> 저장하기
-          </label>
-        </div>
-        <button class="w-100 btn btn-lg btn-primary" type="submit">로그인</button>
-        <p class="mt-5 mb-3 text-muted">© 2017–2022</p>
+        <button id="login" class="mt-3 w-100 btn btn-lg btn-primary" type="submit" disabled>로그인</button>
       </form>
     </main>
+    </div>
+
+    <script>
+      function validateEmail() {
+        const email = document.getElementById('email')
+        const regExp = '^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$';
+        if (email.value.match(regExp) != null) {
+          email.className = "form-control"
+          email.dataset.value = true;
+        }
+        else {
+          email.className = "form-control is-invalid"
+          email.dataset.value = false;
+        }
+      };
+
+      function activateBtn() {
+        const email = document.getElementById('email');
+        const login = document.getElementById('login');
+        if(email.dataset.value == "true" && pw.value != '') {
+          login.disabled = false;
+        } else {
+          login.disabled = true;
+        }
+      }
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
   </body>

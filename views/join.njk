@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  </head>
+  <body class="text-center">
+    <div class="container">
+    <main class="form-signin w-100 m-auto">
+      <form onkeyup="activateBtn()" action="/join" method="POST">
+        <h1 class="h1 my-5 fw-normal">회원가입</h1>
+        <div class="mt-1 form-floating">
+          <input type="text" class="form-control" id="name" placeholder="이메일" name="name">
+          <label for="floatingInput">이름</label>
+        </div>
+        <div class="mt-1 form-floating">
+          <input type="email" class="form-control" id="email" placeholder="이메일" name="email" oninput="validateEmail()">
+          <label for="floatingInput">이메일</label>
+        </div>
+        <div class="mt-1 form-floating">
+          <input type="password" class="form-control" id="pw1" placeholder="비밀번호" oninput="validatePassword()">
+          <label for="floatingPassword">비밀번호</label>
+        </div>
+        <div class="mt-1 form-floating">
+          <input type="password" class="form-control" id="pw2" placeholder="비밀번호" name="pw" oninput="validatePassword()">
+          <label for="floatingPassword">비밀번호 확인</label>
+        </div>
+        <div id="alert" style="float: right; visibility: hidden;">
+          
+        </div>
+        <hr class="mt-4">
+        <button id="join" class="mt-1 w-100 btn btn-lg btn-primary " type="submit" disabled>회원가입</button> 
+      </form>
+    </main>
+    </div>
+
+    <script>
+      function validatePassword() {
+        const pw1 = document.getElementById('pw1')
+        const pw2 = document.getElementById('pw2')
+        const alert = document.getElementById('alert')
+        if(pw2.value.length != 0){
+          if(pw1.value == pw2.value) {
+            alert.innerHTML = "비밀번호가 일치합니다.";
+            alert.style.color = "blue";
+            alert.style.visibility = "visible";
+            alert.dataset.value = true;
+            return 
+          } else {
+            alert.innerHTML = "비밀번호가 일치하지 않습니다.";
+            alert.style.color = "red";
+            alert.style.visibility = "visible";
+            alert.dataset.value = false;
+          }
+        } else if(pw2.value.length == 0) {
+          alert.style.visibility = "hidden";
+          alert.dataset.value = false;
+        }
+      }
+
+      function validateEmail() {
+        const email = document.getElementById('email')
+        const regExp = '^[a-zA-Z0-9+-\_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$';
+        if (email.value.match(regExp) != null) {
+          email.className = "form-control"
+          email.dataset.value = true;
+        }
+        else {
+          email.className = "form-control is-invalid"
+          email.dataset.value = false;
+        }
+      };
+
+      function activateBtn() {
+        const name = document.getElementById('name');
+        const alert = document.getElementById('alert');
+        const email = document.getElementById('email');
+        const join = document.getElementById('join');
+        if(email.dataset.value == "true" && alert.dataset.value == "true" && name.value != '') {
+          join.disabled = false;
+        } else {
+          join.disabled = true;
+        }
+      }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  </body>
+</html>
