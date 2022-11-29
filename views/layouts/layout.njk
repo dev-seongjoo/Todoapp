@@ -13,42 +13,45 @@
   <body>
     {% if user === undefined %}
     <header class="p-3 text-bg-dark">
-      <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start ms-5 me-5">
           <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-            <li><a href="/" class="nav-link px-2 text-white">홈</a></li>
-            <li><a href="/about" class="nav-link px-2 text-white">오늘의 할 일 이란?</a></li>
-            <li><a href="/list" class="nav-link px-2 text-white">목록</a></li>
-            <li><a href="/write" class="nav-link px-2 text-white">할 일 적기</a></li>
+            <li><a href="/page/home" class="nav-link px-2 text-white">홈</a></li>
+            <li><a href="/page/about" class="nav-link px-2 text-white">오늘의 할 일 이란?</a></li>
+            <li><a href="/page/list" class="nav-link px-2 text-white">목록</a></li>
+            <li><a href="/page/write" class="nav-link px-2 text-white">할 일 적기</a></li>
           </ul>
 
           <div class="text-end">
-            <button type="button" class="btn btn-outline-light me-2" onclick="location.href='/login'">로그인</button>
-            <button type="button" class="btn btn-warning" onclick="location.href='/join'">회원가입</button>
+            <button type="button" class="btn btn-warning" onclick="location.href='/auth/join'">회원가입</button>
+            <button type="button" class="btn btn-outline-light mx-2" onclick="location.href='/auth/login'">로그인</button>
           </div>
         </div>
-      </div>
     </header>
     {% elif user !== undefined %}
     <header class="p-3 text-bg-dark">
-      <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start ms-5 me-5">
           <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-            <li><a href="/" class="nav-link px-2 text-white">홈</a></li>
-            <li><a href="/about" class="nav-link px-2 text-white">오늘의 할 일 이란?</a></li>
-            <li><a href="/list" class="nav-link px-2 text-white">목록</a></li>
-            <li><a href="/write" class="nav-link px-2 text-white">할 일 적기</a></li>
+            <li><a href="/page/home" class="nav-link px-2 text-white">홈</a></li>
+            <li><a href="/page/about" class="nav-link px-2 text-white">오늘의 할 일 이란?</a></li>
+            <li><a href="/page/list" class="nav-link px-2 text-white">목록</a></li>
+            <li><a href="/page/write" class="nav-link px-2 text-white">할 일 적기</a></li>
           </ul>
 
           <div class="dropdown text-end">
+            {% if user.imgSrc === "basic" %}
             <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="" alt="mdo" width="32" height="32" class="rounded-circle">
+              <img src="/public/img/github.jpg" id="profileImg" width="32" height="32" class="rounded-circle">
             </a>
+            {% elif user.imgSrc !== "basic"%}
+            <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="/public/img/{{user.email}}.jpg" id="profileImg" width="32" height="32" class="rounded-circle">
+            </a>
+            {% endif %}
             <ul class="dropdown-menu text-small">
-              <li><a class="dropdown-item" href="#">설정</a></li>
-              <li><a class="dropdown-item" href="/mypage">마이페이지</a></li>
+              <li><a class="dropdown-item" href="/page/mypage">나의 정보</a></li>
+              <li><a class="dropdown-item" href="/page/setting">설정</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+              <li><a class="dropdown-item" href="/auth/logout">로그아웃</a></li>
             </ul>
           </div>
         </div>
@@ -59,9 +62,9 @@
     {% block content %}
     {% endblock %}
 
-
     {% block script %}
     {% endblock %}
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

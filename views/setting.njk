@@ -1,0 +1,23 @@
+{% extends './layouts/layout.njk' %}
+
+{% block content %}
+<h4 class="mb-3"> 프로필 사진 </h4>
+  <form method="POST" action="/page/upload" enctype="multipart/form-data">
+    <input type="file" id="setImg" name="profile" onchange="activateBtn()">
+    <button type="submit" class="btn btn-primary btn-lg" id="button" disabled>사진 업로드</button>
+  </form>
+{% endblock %}
+
+{% block script %}
+  <script>
+  function activateBtn() {
+    const fileCheck = document.getElementById('setImg').value;
+    const button = document.getElementById('button')
+    if(fileCheck) {
+      button.disabled = false;
+    } else {
+      button.disabled = true;
+    }
+  }
+  </script>
+{% endblock %}

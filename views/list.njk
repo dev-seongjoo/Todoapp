@@ -26,7 +26,7 @@
       <div class="d-grid gap-2 d-md-flex justify-content-md-end py-3">
         <button class="btn btn-outline-secondary me-md-2" data-bs-toggle="modal" data-bs-target="#detail{{loop.index}} " type="button">자세히 보기</button>
         <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#edit{{loop.index}}">수정</button>
-        <form action="/list/{{i.postNumber}}?_method=DELETE" method="POST">
+        <form action="/page/list/{{i.postNumber}}?_method=DELETE" method="POST">
           <button class="btn btn-outline-secondary">삭제</button>
         </form>
       </div>
@@ -51,7 +51,7 @@
       <div class="modal fade" id="edit{{loop.index}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
-            <form action="/list/{{i.postNumber}}?_method=PUT" method="POST">
+            <form action="/page/list/{{i.postNumber}}?_method=PUT" method="POST">
             <p class="h3 pt-3 ps-3"> 수정하기 </p>
             <div class="modal-header w-100">
               <div class="mb-3 w-75">
@@ -94,7 +94,7 @@
       <div class="d-grid gap-2 d-md-flex justify-content-md-end py-3">
         <button class="btn btn-outline-secondary me-md-2" data-bs-toggle="modal" data-bs-target="#detail{{loop.index}} " type="button">자세히 보기</button>
         <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#edit{{loop.index}}">수정</button>
-        <form action="/list/{{i.postNumber}}?_method=DELETE" method="POST">
+        <form action="/page/list/{{i.postNumber}}?_method=DELETE" method="POST">
           <button class="btn btn-outline-secondary">삭제</button>
         </form>
       </div>
@@ -119,7 +119,7 @@
       <div class="modal fade" id="edit{{loop.index}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
-            <form action="/list/{{i.postNumber}}?_method=PUT" method="POST">
+            <form action="/page/list/{{i.postNumber}}?_method=PUT" method="POST">
             <p class="h3 pt-3 ps-3"> 수정하기 </p>
             <div class="modal-header w-100">
               <div class="mb-3 w-75">
@@ -156,7 +156,7 @@
   <script>
     function search() {
       const word = document.getElementById('word').value;
-      window.location.replace(`/search?value=${word}`)
+      window.location.replace(`/page/search?value=${word}`)
     }
   </script>
 {% endblock %}
