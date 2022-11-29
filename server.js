@@ -116,6 +116,7 @@ app.post('/join', isNotLoggedIn, async (req, res) => {
         email, 
         pw: hash
       });
+      db.collection('counter').insertOne({name: email, totalPost:0})
     res.redirect('/')
     }
   } catch (err) {
@@ -150,9 +151,24 @@ app.get('/logout', (req, res) => {
   });
 });
 
+app.get('/write', isLoggedIn, (req,res) => {
+  res.render('write.njk', {
+    title: 'Write',
+    user: req.user
+  });
+});
+
+app.post('/write', async (req, res) => {
+    const result = await db.collection('counter').findOne({name: req.user.email});
+    const totalPost = result.totalPost;
+    db.collection('post').insertOne({postNumber: totalPost+1,title: req.body.title, date: req.body.date, contents: req.body.contents, writer: req.user.email}, console.log('저장 완료 '));
+    db.collection('counter').updateOne({name: req.user.email}, { $inc: { totalPost: +1}}, console.log('변경 완료'));
+    res.redirect('/');
+})
+
 app.get('/list', isLoggedIn, async (req, res) => {
   try {
-    const post = await db.collection('post').find().toArray();
+    const post = await db.collection('post').find({writer: req.user.email}).toArray();
     res.render('list.njk', {
       title: 'List',
       post: post,
@@ -163,40 +179,50 @@ app.get('/list', isLoggedIn, async (req, res) => {
   }
 })
 
-app.put('/list/:id', async (req, res) => {
+app.put('/list/:id', isLoggedIn, async (req, res) => {
   try {
     const postId = parseInt(req.params.id)
-    db.collection('post').updateOne({_id: postId}, {$set: {_id: postId, title: req.body.title, date: req.body.date, contents: req.body.contents}}, console.log('수정 완료'))
+    db.collection('post').updateOne({postNumber: postId}, {$set: {postNumber: postId, title: req.body.title, date: req.body.date, contents: req.body.contents, writer: req.user.email}}, console.log('수정 완료'))
     res.redirect('/list')
   } catch(err) {
     console.error(err)
   }
 })
 
-app.delete('/list/:id', async (req, res) => {
+app.delete('/list/:id', isLoggedIn, async (req, res) => {
   try {
     const postId = parseInt(req.params.id)
-    db.collection('post').deleteOne({_id: postId}, console.log('삭제 완료'));
-    db.collection('counter').updateOne({name:'postNumber'}, { $inc: { totalPost: -1}}, console.log('변경 완료'));
+    db.collection('post').deleteOne({postNumber: postId}, console.log('삭제 완료'));
+    db.collection('counter').updateOne({name: req.user.email}, { $inc: { totalPost: -1}}, console.log('변경 완료'));
     res.redirect('/list')
   } catch (err) {
     console.error(err)
   }
 });
 
-app.get('/write', isLoggedIn, (req,res) => {
-  res.render('write.njk', {
-    title: 'Write',
-    user: req.user
-  });
-});
-
-app.post('/write', async (req, res) => {
-    const result = await db.collection('counter').findOne({name: 'postNumber'});
-    const totalPost = result.totalPost;
-    db.collection('post').insertOne({_id: totalPost+1,title: req.body.title, date: req.body.date, contents: req.body.contents}, console.log('저장 완료 '));
-    db.collection('counter').updateOne({name:'postNumber'}, { $inc: { totalPost: +1}}, console.log('변경 완료'));
-    res.redirect('/');
+app.get('/search', isLoggedIn, async (req, res) => {
+  try{
+    const searchCondition  = [
+      {
+        $search: {
+          index: 'titleSearch',
+          text: {
+            query: req.query.value,
+            path: 'title'  // 제목날짜 둘다 찾고 싶으면 ['제목', '날짜']
+          }
+        }
+      }
+    ]
+    const result = await db.collection('post').aggregate(searchCondition).toArray();
+    console.log(result)
+    res.render('list', {
+      post: result,
+      searchCondition,
+      user: req.user
+    });
+  } catch(err) {
+    console.error(err);
+  }  
 })
 
 app.get('/mypage', isLoggedIn ,(req, res) => {
