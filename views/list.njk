@@ -1,151 +1,168 @@
 {% extends './layouts/layout.njk' %}
 
 {% block content %}
-<div class="container mt-3 me-5">
-  <div class="input-group w-50 float-end ">
-    <input class="form-control" type="search" placeholder="나의 목록 찾기" id="word">
+<div class="container">
+  <h1 class="display-5 pt-5">나의 목표</h1>
+  <button class="btn btn-outline-secondary mb-5" onclick="location.href='/page/write'" >목표 적기</button>
+  <div class="input-group pb-5">
+    <input class="form-control" type="search" placeholder="나의 목표 찾기" id="word">
     <button class="btn btn-outline-secondary" type="button" id="search" onclick="search()">검색</button>
   </div>
 </div>
 
-<div class="container mt-5">
-  <div class="p-5 mb-5 rounded-3">
-    <h1 class="display-5 mb-3">목록</h1>
-    {% if searchCondition %}
-    {% for i in post %}
-    <div class="list-group w-auto">
-      <label class="list-group-item">
-          <small>
-            {{i.postNumber}})
-          </small>
-          <strong>제목: {{i.title}}</strong>
-          <small class="d-block text-muted">
-            기한: {{i.date}}
-          </small>
-      </label>
-      <div class="d-grid gap-2 d-md-flex justify-content-md-end py-3">
-        <button class="btn btn-outline-secondary me-md-2" data-bs-toggle="modal" data-bs-target="#detail{{loop.index}} " type="button">자세히 보기</button>
-        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#edit{{loop.index}}">수정</button>
-        <form action="/page/list/{{i.postNumber}}?_method=DELETE" method="POST">
-          <button class="btn btn-outline-secondary">삭제</button>
-        </form>
-      </div>
+<div class="container bg-light py-3">
+  {% if searchCondition %}
+  {% for i in post %}
+  <div class="list-group">
+    <label class="list-group-item">
+        <small>{{i.postNumber}})</small>
+        <strong>목표: {{i.title}}</strong>
+        <small class="d-block text-muted">
+          기한: {{i.date}}
+        </small>
+    </label>
+    {% if i.share === "no" %}
+    <form action="/page/share/{{i.postNumber}}" method="POST">
+        <button class="btn btn-outline-secondary mt-2 float-start" onclick="share()">공유하기</button>
+    </form>
+    {% elif i.share === "yes" %}
+    <form action="/page/share/{{i.postNumber}}" method="POST">
+        <button class="btn btn-outline-secondary mt-2 float-start" disabled>공유완료</button>
+    </form>
+    {% endif %}
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end pt-2 pb-3">
+      <button class="btn btn-outline-secondary me-md-2" data-bs-toggle="modal" data-bs-target="#detail{{loop.index}}">자세히 보기</button>
+      <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#edit{{loop.index}}">수정</button>
+      <form action="/page/list/{{i.postNumber}}?_method=DELETE" method="POST">
+        <button class="btn btn-outline-secondary">삭제</button>
+      </form>
+    </div>
 
-      <div class="modal fade" id="detail{{loop.index}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">{{i.title}}</h5>
-              <small class="d-block text-muted ps-3">{{i.date}}</small>
-            </div>
-            <div class="modal-body">
-              {{i.contents}}
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-            </div>
+    <div class="modal fade" id="detail{{loop.index}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">{{i.title}}</h5>
+            <small class="d-block text-muted ps-3">{{i.date}}</small>
           </div>
-        </div>
-      </div>
-
-      <div class="modal fade" id="edit{{loop.index}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <form action="/page/list/{{i.postNumber}}?_method=PUT" method="POST">
-            <p class="h3 pt-3 ps-3"> 수정하기 </p>
-            <div class="modal-header w-100">
-              <div class="mb-3 w-75">
-                <label for="exampleFormControlInput1" class="form-label">제목</label>
-                <input type="text" class="form-control" placeholder="제목" name="title">
-              </div>
-              <div class="mb-3 w-25">
-                <label for="exampleFormControlInput1" class="form-label">기한</label>
-                <input type="datetime-local" class="form-control" name="date">
-              </div>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="exampleFormControlTextarea1" class="form-label">내용</label>
-                <textarea class="form-control" rows="3" placeholder="내용" name="contents"></textarea>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-secondary" data-bs-dismiss="modal">수정하기</button>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-            </div>
-            </form>
+          <div class="modal-body">
+            {{i.contents}}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </div>
       </div>
     </div>
-    {% endfor %}
-    {% else %}
-    {% for i in post %}
-    <div class="list-group w-auto">
-      <label class="list-group-item">
-          <small>
-            {{i.postNumber}})
-          </small>
-          <strong>제목: {{i.title}}</strong>
-          <small class="d-block text-muted">
-            기한: {{i.date}}
-          </small>
-      </label>
-      <div class="d-grid gap-2 d-md-flex justify-content-md-end py-3">
-        <button class="btn btn-outline-secondary me-md-2" data-bs-toggle="modal" data-bs-target="#detail{{loop.index}} " type="button">자세히 보기</button>
-        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#edit{{loop.index}}">수정</button>
-        <form action="/page/list/{{i.postNumber}}?_method=DELETE" method="POST">
-          <button class="btn btn-outline-secondary">삭제</button>
-        </form>
-      </div>
 
-      <div class="modal fade" id="detail{{loop.index}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">{{i.title}}</h5>
-              <small class="d-block text-muted ps-3">{{i.date}}</small>
+    <div class="modal fade" id="edit{{loop.index}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form action="/page/list/{{i.postNumber}}?_method=PUT" method="POST">
+          <p class="h3 pt-3 ps-3"> 수정하기 </p>
+          <div class="modal-header w-100">
+            <div class="mb-3 w-50">
+              <label for="exampleFormControlInput1" class="form-label">목표</label>
+              <input type="text" class="form-control" placeholder="목표" name="title">
             </div>
-            <div class="modal-body">
-              {{i.contents}}
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+            <div class="mb-3 w-50">
+              <label for="exampleFormControlInput1" class="form-label">기한</label>
+              <input type="datetime-local" class="form-control" name="date">
             </div>
           </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="exampleFormControlTextarea1" class="form-label">내용</label>
+              <textarea class="form-control" rows="3" placeholder="내용" name="contents"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-secondary" data-bs-dismiss="modal">수정하기</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          </div>
+          </form>
         </div>
-      </div>
+      </div> 
+    </div> 
+  </div>
 
-      <div class="modal fade" id="edit{{loop.index}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <form action="/page/list/{{i.postNumber}}?_method=PUT" method="POST">
-            <p class="h3 pt-3 ps-3"> 수정하기 </p>
-            <div class="modal-header w-100">
-              <div class="mb-3 w-75">
-                <label for="exampleFormControlInput1" class="form-label">제목</label>
-                <input type="text" class="form-control" placeholder="제목" name="title">
-              </div>
-              <div class="mb-3 w-25">
-                <label for="exampleFormControlInput1" class="form-label">기한</label>
-                <input type="datetime-local" class="form-control" name="date">
-              </div>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="exampleFormControlTextarea1" class="form-label">내용</label>
-                <textarea class="form-control" rows="3" placeholder="내용" name="contents"></textarea>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-secondary" data-bs-dismiss="modal">수정하기</button>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-            </div>
-            </form>
+  {% endfor %}
+  {% else %}
+  {% for i in post %}
+  <div class="list-group w-auto">
+    <label class="list-group-item">
+        <small>
+          {{i.postNumber}})
+        </small>
+        <strong>목표: {{i.title}}</strong>
+        <small class="d-block text-muted">
+          기한: {{i.date}}
+        </small>
+    </label>
+    {% if i.share === "no" %}
+    <form action="/page/share/{{i.postNumber}}" method="POST">
+        <button class="btn btn-outline-secondary mt-2 float-start" onclick="share()">공유하기</button>
+    </form>
+    {% elif i.share === "yes" %}
+    <form action="/page/share/{{i.postNumber}}" method="POST">
+        <button class="btn btn-outline-secondary mt-2 float-start" disabled>공유완료</button>
+    </form>
+    {% endif %}
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end pt-2 pb-3">
+      <button class="btn btn-outline-secondary me-md-2" data-bs-toggle="modal" data-bs-target="#detail{{loop.index}}">자세히 보기</button>
+      <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#edit{{loop.index}}">수정</button>
+      <form action="/page/list/{{i.postNumber}}?_method=DELETE" method="POST">
+        <button class="btn btn-outline-secondary">삭제</button>
+      </form>
+    </div>
+
+    <div class="modal fade" id="detail{{loop.index}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">{{i.title}}</h5>
+            <small class="d-block text-muted ps-3">{{i.date}}</small>
+          </div>
+          <div class="modal-body">
+            {{i.contents}}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="modal fade" id="edit{{loop.index}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form action="/page/list/{{i.postNumber}}?_method=PUT" method="POST">
+          <p class="h3 pt-3 ps-3"> 수정하기 </p>
+          <div class="modal-header w-100">
+            <div class="mb-3 w-50">
+              <label for="exampleFormControlInput1" class="form-label">목표</label>
+              <input type="text" class="form-control" placeholder="목표" name="title">
+            </div>
+            <div class="mb-3 w-50">
+              <label for="exampleFormControlInput1" class="form-label">기한</label>
+              <input type="datetime-local" class="form-control" name="date">
+            </div>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="exampleFormControlTextarea1" class="form-label">내용</label>
+              <textarea class="form-control" rows="3" placeholder="내용" name="contents"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-secondary" data-bs-dismiss="modal">수정하기</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
     {% endfor %}
     {% endif %}
   </div>
@@ -156,7 +173,11 @@
   <script>
     function search() {
       const word = document.getElementById('word').value;
-      window.location.replace(`/page/search?value=${word}`)
+      window.location.replace(`/page/list/search?value=${word}`)
+    }
+
+    function share() {
+      alert('공유가 완료되었습니다.')
     }
   </script>
 {% endblock %}

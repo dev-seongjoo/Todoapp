@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')
 const { isLoggedIn ,isNotLoggedIn } = require('./middlewares');
 const db = require('../models/index')
 
-router.get('/login', isNotLoggedIn,(req, res, info) => {
+router.get('/login', isNotLoggedIn, (req, res, info) => {
   res.render('login.njk', {
     title: '로그인',
     user: req.user

@@ -1,0 +1,66 @@
+{% extends './layouts/layout.njk' %}
+
+{% block content %}
+<main>
+
+  <section class="py-5 text-center container">
+    <div class="row py-lg-5">
+      <div class="col-lg-6 col-md-8 mx-auto">
+        <h1 class="fw-light">당신의 목표를 공유해보세요 !</h1>
+        <p class="lead text-muted">다른 사람들과 목표를 공유해서 당신을 동기부여해보세요 !</p>
+        <p>
+          <a href="/page/list" class="btn btn-primary my-2">목표 공유하기</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="input-group">
+      <input class="form-control" type="search" placeholder="다른 사람들의 목표 찾기" id="word">
+      <button class="btn btn-outline-secondary" type="button" id="search" onclick="search()">검색</button>
+    </div>
+  </div>
+  <div class="album py-5 bg-light">
+    <div class="container">
+      {% if searchCondition %}
+      <p class="h1 pb-5">다른 사람들의 공유된 목표</p>
+      {% else %}
+      <p class="h1 pb-5">나의 공유된 목표</p>
+      {% endif %}
+      
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+        {% for i in post %}
+        <div class="col">
+          <div class="card shadow-sm">
+            {% if i.writer === user.email %}
+            <img src={{user.imgSrc}} class="bd-placeholder-img card-img-top" width="100" height="150""">
+            {% elif i.writer !== user.email %}
+            <img src='/public/img/{{i.writer}}.jpg' class="bd-placeholder-img card-img-top" width="100" height="150">
+            {% endif %}
+            <div class="card-body">
+              <p class="h6 card-text">{{i.title}} </p>
+              <div class="d-flex justify-content-between align-items-center">
+                <button type="button" class="btn btn-md btn-outline-secondary" onclick="location.href='/page/postDetail/{{i.postNumber}}/{{i.writer}}'" data-id={{i.writer}}>자세히 보기</button>                  
+                <p class="h6 mt-3" id="date">~ {{i.date}} 까지</p>
+              </div>
+            </div>
+          </div>    
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</main>
+
+{% endblock %}
+
+{% block script %}
+  <script>
+    function search() {
+      const word = document.getElementById('word').value;
+      window.location.replace(`/page/community/search?value=${word}`)
+    }
+  </script>
+{% endblock %}

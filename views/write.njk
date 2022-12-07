@@ -3,19 +3,19 @@
 {% block content %}
 <div class="container">
 <div class="p-5 mb-5 bg-light rounded-3">
-	<h3 class="mb-5 display-3">할 일 적기</h3>
+	<h3 class="mb-5 display-3">목표 적기</h3>
 	<form action="/page/write" method="POST">
 		<div class="mb-5">
-			<label for="exampleFormControlInput1" class="form-label">제목</label>
-			<input type="text" class="form-control" placeholder="제목" name="title">
+			<label for="exampleFormControlInput1" class="form-label">목표</label>
+			<input type="text" class="form-control" placeholder="목표" name="title" oninput="legnthCheck(this,20)">
 		</div>
 		<div class="mb-5">
 			<label for="exampleFormControlInput1" class="form-label">기한</label>
-			<input type="datetime-local" class="form-control" name="date">
+			<input type="date" class="form-control" name="date">
 		</div>
 		<div class="mb-3">
-			<label for="exampleFormControlTextarea1" class="form-label">내용</label>
-			<textarea class="form-control" rows="3" placeholder="내용" name="contents"></textarea>
+			<label for="exampleFormControlTextarea1" class="form-label">계획</label>
+			<textarea class="form-control" rows="3" placeholder="목표를 어떻게 달성하실 건가요?" name="contents"></textarea>
 		</div>
 		<button type="submit" class="btn btn-outline-secondary float-end ">저장</button>
 		</div>
@@ -24,3 +24,16 @@
 </div>
 {% endblock %}
 
+{% block script %}
+<script>
+function legnthCheck(el, maxlength) {
+  if(el.value.length > maxlength)  {
+		alert('20자 까지만 입력이 가능합니다.')
+    el.value = el.value.substr(0, maxlength);
+  }
+}
+	
+
+</script>
+
+{% endblock %}
