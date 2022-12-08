@@ -12,7 +12,6 @@ passportConfig();
 app.set('view engine', 'njk')
 nunjucks.configure('views', {
   express: app,
-  watch: true,
 });
 app.use(session({
   secret: COOKIE_SECRET,
