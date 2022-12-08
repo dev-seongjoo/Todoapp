@@ -34,12 +34,12 @@ router.use((req, res, next) => {
 router.get('/home', (req,res) => {
   if (req.user == undefined) {
     res.render('main.njk', {
-      title: '오늘의 할 일',
+      title: 'To do app',
     })
   }else{
     console.log(`${req.user.name}님 접속을 환영합니다.`);
     res.render('main.njk', {
-      title: '오늘의 할 일',
+      title: 'To do app',
     })
   }
 });
@@ -62,7 +62,7 @@ router.get('/list', isLoggedIn, async (req, res) => {
   try {
     const post = await db.collection('post').find({writer: req.user.email}).toArray();
     res.render('list.njk', {
-      title: 'List',
+      title: '나의 목표',
       post: post,
     }) 
   } catch (err) {

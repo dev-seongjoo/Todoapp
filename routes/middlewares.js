@@ -2,8 +2,7 @@ exports.isLoggedIn = (req, res, next) => {
   if (req.user) {
     next()
   } else {
-    res.write("<script>alert('Login Please')</script>")
-    res.write("<script>window.location='/auth/login'</script>");
+    res.send('로그인이 필요합니다.')
   }
 }
 
@@ -11,7 +10,6 @@ exports.isNotLoggedIn = (req, res, next) => {
   if (!req.user) {
     next()
   } else {
-    res.write("<script>alert('Logout Please')</script>")
-    res.write("<script>window.location='/page/home'</script>");
+    res.send('로그아웃이 필요합니다.')
   }
 }
